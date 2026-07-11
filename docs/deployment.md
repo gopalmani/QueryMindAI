@@ -18,7 +18,7 @@ Open web at `http://localhost:4028`, API docs at `http://localhost:8000/docs`, a
 2. Review creation of `querymind-postgres`, `querymind-api`, and `querymind-web`. Select paid plans where the Blueprint/free availability differs for your account or region.
 3. Before deploying the API, enter the Groq key only in the non-synced `LLM_API_KEY` field. The Blueprint sets the hosted base URL, primary model, and fallback model; no key is stored in Git. A Render service cannot reach Ollama on a developer laptop.
 4. Set `CORS_ALLOW_ORIGINS` on the API to the final HTTPS web origin, without a trailing slash.
-5. Deploy the API. Render installs requirements, runs `alembic upgrade head` as the pre-deploy command, starts Uvicorn on `$PORT`, and checks `/health`. Confirm `https://<api-host>/health` and `/ready`.
+5. Deploy the API. On the free tier, the API start command runs `alembic upgrade head` before starting Uvicorn because Render does not support pre-deploy commands for free services. Confirm `https://<api-host>/health` and `/ready`.
 6. Set `NEXT_PUBLIC_API_URL` on `querymind-web` to `https://<api-host>/api/v1`, then trigger a clean frontend deploy. Render does not provide a supported Blueprint interpolation from another web service’s eventual public hostname into a Next.js build variable; this manual build-time step is required.
 7. Open the web service and run a safe demo question. Seed demo tables separately from Render Shell with `psql "$DATABASE_URL" -f scripts/seed_data.sql` from `apps/api` if the database is empty.
 8. Keep external connections disabled. For production, create/review a least-privilege reader role and change the query execution connection design so application metadata migrations and query traffic do not share broad credentials.

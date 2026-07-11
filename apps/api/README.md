@@ -42,4 +42,4 @@ Verified examples are human-reviewed question/SQL pairs. The question embedding 
 
 ## Deployment
 
-The Dockerfile is non-root and binds `$PORT`. Render runs `alembic upgrade head` as pre-deploy. Set secrets in the platform and use `/health` for liveness. See `../../docs/deployment.md`.
+The Dockerfile is non-root and binds `$PORT`. Render's free tier runs `alembic upgrade head` at API startup because pre-deploy commands require a paid service. Set secrets in the platform and use `/health` for liveness. See `../../docs/deployment.md`.
