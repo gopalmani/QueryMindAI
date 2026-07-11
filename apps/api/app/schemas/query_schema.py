@@ -35,19 +35,6 @@ class QueryResponse(BaseModel):
     metadata: QueryMetadata
 
 
-class DBConfig(BaseModel):
-    host: str = Field(min_length=1, max_length=253, pattern=r"^[A-Za-z0-9._:-]+$")
-    port: int = Field(ge=1, le=65535)
-    database: str = Field(min_length=1, max_length=63, pattern=r"^[A-Za-z0-9_-]+$")
-    user: str = Field(min_length=1, max_length=63)
-    password: str = Field(min_length=1, max_length=512)
-
-
-class ConnectQueryRequest(BaseModel):
-    db_config: DBConfig
-    question: str = Field(min_length=1, max_length=settings.MAX_QUESTION_LENGTH)
-
-
 class VerifiedExampleRequest(BaseModel):
     question: str = Field(min_length=1, max_length=settings.MAX_QUESTION_LENGTH)
     sql: str = Field(min_length=1, max_length=settings.MAX_SQL_LENGTH)

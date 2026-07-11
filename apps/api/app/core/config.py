@@ -21,6 +21,17 @@ class Settings(BaseSettings):
     ENABLE_SCHEMA_RAG: bool = False
     ENABLE_GOLDEN_RECORDS: bool = False
     ENABLE_EXTERNAL_CONNECTIONS: bool = False
+    ALLOW_PRIVATE_DATABASE_HOSTS: bool = False
+    CONNECTION_ENCRYPTION_KEY: str | None = None
+    AUTH_SIGNING_KEY: str | None = None
+    AUTH_SESSION_TTL_SECONDS: int = Field(2592000, ge=300, le=31536000)
+    DATABASE_CONNECTION_TIMEOUT_SECONDS: int = Field(5, ge=1, le=30)
+    DATABASE_STATEMENT_TIMEOUT_MS: int = Field(10000, ge=100, le=300000)
+    DATABASE_MAX_RESULT_ROWS: int = Field(500, ge=1, le=10000)
+    DATABASE_MAX_SQL_LENGTH: int = Field(10000, ge=100, le=100000)
+    SCHEMA_FULL_CONTEXT_TABLE_LIMIT: int = Field(20, ge=1, le=500)
+    SCHEMA_RETRIEVAL_TABLE_LIMIT: int = Field(8, ge=1, le=100)
+    QUERY_DRAFT_TTL_SECONDS: int = Field(900, ge=60, le=86400)
     MAX_QUESTION_LENGTH: int = Field(1000, ge=1, le=10000)
     MAX_SQL_LENGTH: int = Field(20000, ge=100, le=100000)
     MAX_QUERY_ROWS: int = Field(100, ge=1, le=10000)

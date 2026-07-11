@@ -8,7 +8,7 @@ The modular FastAPI service turns validated questions into schema-aware PostgreS
 
 ## Endpoints
 
-`GET /health` is liveness. `GET /ready` checks PostgreSQL. Under `/api/v1`: `GET /schema`, `GET /query-history`, `POST /query`, `POST /verified-examples`; `/golden-record` is a deprecated compatibility alias. `/connect-and-query` returns 403 unless explicitly enabled.
+`GET /health` is liveness and `GET /ready` checks the application PostgreSQL database. BYOD endpoints under `/api/v1` include signed session creation; connection create/list/get/test/refresh/schema/delete; query generate/execute/history/get; and saving an executed query as verified. All BYOD resources are scoped to the verified session subject. Legacy demo endpoints remain for compatibility.
 
 ## Configuration and providers
 
@@ -27,6 +27,8 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 Production startup never creates tables. Alembic creates application tables and pgvector. The demo seed is idempotent. Use `../../scripts/create_readonly_role.sql` as a reviewed template and run query traffic with that role.
+
+Saved customer credentials require `CONNECTION_ENCRYPTION_KEY` (a Fernet key). Signed workspace sessions require a separate `AUTH_SIGNING_KEY`. Generate them with the commands in `../../docs/deployment.md`. BYOD accepts URL or structured PostgreSQL input, requires SSL, blocks unsafe networks by default, and stores normalized schema snapshots without row data.
 
 ## Safety model
 

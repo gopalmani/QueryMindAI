@@ -4,20 +4,17 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import FeatureDisabledError
-from app.db.dynamic_session import get_dynamic_session
 from app.db.session import get_db
-from app.schemas.query_schema import (ConnectQueryRequest, QueryRequest, QueryResponse,
+from app.schemas.query_schema import (QueryRequest, QueryResponse,
                                       VerifiedExampleRequest, VerifiedExampleResponse)
 from app.services.golden_record_service import save_golden_record
-from app.services.query_service import execute_query
-from app.services.schema_introspect_service import get_dynamic_schema
 
 router = APIRouter()
 
 
 @router.post("/query", response_model=QueryResponse)
 async def query_db(request: QueryRequest, db: Session = Depends(get_db)):
-    return await execute_query(db, request.question)
+    raise FeatureDisabledError("Combined generation and execution is disabled; use /queries/generate then /queries/execute")
 
 
 @router.get("/schema")
@@ -41,17 +38,6 @@ def query_history(limit: int = 20, db: Session = Depends(get_db)):
         FROM query_history ORDER BY created_at DESC LIMIT :limit
     """), {"limit": min(max(limit, 1), 100)}).mappings().all()
     return {"items": [dict(row) for row in rows], "source": "real_api_data"}
-
-
-@router.post("/connect-and-query", response_model=QueryResponse)
-async def connect_and_query(request: ConnectQueryRequest):
-    if not settings.ENABLE_EXTERNAL_CONNECTIONS:
-        raise FeatureDisabledError("External database connections are disabled")
-    db = get_dynamic_session(request.db_config.model_dump())
-    try:
-        return await execute_query(db, request.question, schema_override=get_dynamic_schema(db))
-    finally:
-        db.close()
 
 
 @router.post("/verified-examples", response_model=VerifiedExampleResponse, status_code=status.HTTP_201_CREATED)

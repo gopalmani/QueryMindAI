@@ -8,18 +8,17 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("CREATE EXTENSION IF NOT EXISTS vector")
     op.execute("""
       CREATE TABLE golden_records (
         id BIGSERIAL PRIMARY KEY, connection_key VARCHAR(128) NOT NULL,
-        question TEXT NOT NULL, sql_query TEXT NOT NULL, embedding vector,
+        question TEXT NOT NULL, sql_query TEXT NOT NULL, embedding JSONB,
         reviewer VARCHAR(128), source VARCHAR(128), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         CONSTRAINT uq_verified_example UNIQUE (connection_key, question, sql_query)
       );
       CREATE TABLE schema_embeddings (
         id BIGSERIAL PRIMARY KEY, connection_key VARCHAR(128) NOT NULL,
-        table_name VARCHAR(128) NOT NULL, schema_ddl TEXT NOT NULL, embedding vector,
+        table_name VARCHAR(128) NOT NULL, schema_ddl TEXT NOT NULL, embedding JSONB,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         CONSTRAINT uq_schema_embedding UNIQUE (connection_key, table_name)
       );
