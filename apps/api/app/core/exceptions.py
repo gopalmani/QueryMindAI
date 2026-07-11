@@ -30,3 +30,18 @@ class DependencyError(QueryMindError):
 class FeatureDisabledError(QueryMindError):
     status_code = 403
     code = "feature_disabled"
+
+
+class NotFoundError(QueryMindError):
+    status_code = 404
+    code = "not_found"
+
+
+class AuthenticationError(QueryMindError):
+    status_code = 401
+    code = "authentication_required"
+
+
+class ConnectionSecurityError(QueryMindError):
+    status_code = 400
+    code = "connection_rejected"

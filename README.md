@@ -1,11 +1,11 @@
 # QueryMindAI
 > Ask questions, not SQL.
 
-QueryMindAI is an open-source natural-language analytics platform that converts business questions into safe, explainable SQL queries over structured data.
+QueryMindAI is an open-source AI data workspace that lets users connect a read-only database and query it safely using natural language.
 
 ## Current status
 
-QueryMindAI is an early production-minded release. Implemented today: PostgreSQL schema introspection, optional schema-vector retrieval, provider-based SQL generation, parser validation, read-only execution, verified-example retrieval, query history, demo data, Docker Compose, and Render configuration. Authentication, multi-tenant credential storage, a polished connection manager, and comparative model benchmarks are roadmap items. Some retained dashboard views are explicitly demo UI.
+QueryMindAI is an early production-minded release. Implemented today: encrypted saved PostgreSQL connections, public-host SSRF checks, SSL connections, catalog snapshots, structured SQL generation, explicit approval drafts, parser/table validation, read-only execution, verified examples, history, audit events, Docker Compose, and Render configuration. Signed anonymous workspace sessions provide ownership isolation for the public demo; account login and enterprise identity integration remain roadmap work.
 
 ## Screenshots
 
@@ -24,27 +24,25 @@ QueryMindAI is an early production-minded release. Implemented today: PostgreSQL
 
 ```mermaid
 flowchart LR
-  U[Next.js web] --> A[FastAPI API]
-  A --> P[Query orchestrator]
-  P --> S[Schema introspection / optional RAG]
-  P --> V[Verified examples]
-  P --> L[LLM provider client]
-  P --> G[sqlglot safety gate]
-  G --> D[(Read-only PostgreSQL)]
+  B[Browser] --> W[QueryMindAI Web] --> A[QueryMindAI API]
+  A --> C[Connection Manager] --> S[Schema Catalog]
+  S --> L[LLM Query Planner] --> V[SQL Validator]
+  V --> E[Execution Engine] --> D[(Customer PostgreSQL Database)]
 ```
 
 ### Query lifecycle
 
 ```mermaid
 flowchart LR
-  Q[Validate question] --> S[Retrieve schema] --> E[Optional verified example]
-  E --> L[Generate SQL] --> C[Clean] --> V[Parse + validate]
-  V --> X[Read-only execute] --> R[Structured response]
+  Q[Validate question] --> S[Retrieve bounded schema] --> L[Generate structured SQL]
+  L --> V[Parse, table-check, cap LIMIT] --> D[Store expiring draft]
+  D --> H[Human review and approval] --> R[Revalidate SQL]
+  R --> X[Read-only execute with timeout] --> O[Results and history]
 ```
 
 ## Tech stack
 
-FastAPI, SQLAlchemy, Alembic, PostgreSQL/pgvector, sqlglot, OpenAI-compatible provider API, Next.js 15, React 19, TypeScript, Tailwind CSS, Docker Compose, GitHub Actions, and Render.
+FastAPI, SQLAlchemy, Alembic, PostgreSQL, sqlglot, OpenAI-compatible provider API, Next.js 15, React 19, TypeScript, Tailwind CSS, Docker Compose, GitHub Actions, and Render.
 
 ## Repository structure
 
@@ -59,7 +57,7 @@ scripts        Operator helpers
 
 ## Quickstart
 
-Prerequisites: Python 3.12, Node 20, PostgreSQL 16 with pgvector, and optionally Ollama.
+Prerequisites: Python 3.12, Node 20, PostgreSQL 16+, and optionally Ollama.
 
 ```bash
 cp apps/api/.env.example apps/api/.env
@@ -105,8 +103,10 @@ For the default Compose stack, optional vector features are off so schema intros
 | `LLM_MODEL`, `LLM_FALLBACK_MODEL` | Primary and retry fallback generation models |
 | `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL` | Local semantic-retrieval configuration |
 | `ENABLE_SCHEMA_RAG`, `ENABLE_GOLDEN_RECORDS` | Optional embedding features |
-| `ENABLE_EXTERNAL_CONNECTIONS` | Raw connection endpoint; defaults false |
-| `MAX_QUERY_ROWS`, `STATEMENT_TIMEOUT_MS` | Execution safeguards |
+| `ENABLE_EXTERNAL_CONNECTIONS`, `ALLOW_PRIVATE_DATABASE_HOSTS` | BYOD and SSRF policy flags |
+| `CONNECTION_ENCRYPTION_KEY`, `AUTH_SIGNING_KEY` | Backend-only Fernet and session signing secrets |
+| `DATABASE_*` | Connect timeout, statement timeout, SQL length, and result caps |
+| `SCHEMA_*_TABLE_LIMIT` | Full-context and retrieval bounds |
 | `NEXT_PUBLIC_API_URL` | Browser-visible API `/api/v1` URL |
 
 See the component `.env.example` files for all defaults.
@@ -120,6 +120,10 @@ Semantic retrieval uses lazy, process-cached `sentence-transformers/all-MiniLM-L
 ## API overview
 
 - `GET /health`, `GET /ready`
+- `POST /api/v1/auth/session`
+- `POST/GET/DELETE /api/v1/connections[...]`
+- `POST /api/v1/queries/generate`, `POST /api/v1/queries/execute`
+- `GET /api/v1/queries/history`, `GET /api/v1/queries/{id}`
 - `GET /api/v1/schema`, `GET /api/v1/query-history`
 - `POST /api/v1/query`
 - `POST /api/v1/verified-examples`
@@ -141,9 +145,9 @@ The API validates question size, limits generated SQL length, rejects comments/m
 
 ## Limitations and roadmap
 
-Current limitations include PostgreSQL-only execution, provider-dependent SQL quality, unavailable verified-example saving when embeddings are disabled, no auth/multi-tenancy, no encrypted external credential vault, in-memory external schema cache, and demo-only management screens.
+Current limitations include PostgreSQL-only execution, publicly reachable hosts only, provider-dependent SQL quality, application-level encryption rather than a managed vault, anonymous browser-bound sessions rather than account authentication, no rate limiter, and no guaranteed detection of inherited write privileges.
 
-Roadmap: authenticated workspaces, secure connection management, API-backed connection pages, richer history review, execution-backed evaluations, additional SQL dialects, observability exports, and reviewed embedding lifecycle tools.
+Roadmap: OIDC accounts and organizations, MySQL, richer history review, execution-backed evaluations, observability exports, and a customer-side connector for private databases: `Customer Database → QueryMind Connector inside customer network → outbound TLS → QueryMindAI Cloud`. The connector is documented only and is not implemented.
 
 ## Contributing and license
 

@@ -33,3 +33,8 @@ def test_rejects_write_or_admin(sql):
 def test_rejects_multiple_statements_or_comments(sql):
     with pytest.raises(UnsafeSQLError):
         validate_sql(sql)
+
+
+def test_rejects_unknown_table_against_catalog():
+    with pytest.raises(UnsafeSQLError):
+        validate_sql("SELECT * FROM payroll", allowed_tables={"orders", "public.orders"})

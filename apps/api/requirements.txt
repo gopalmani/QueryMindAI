@@ -1,8 +1,8 @@
 alembic==1.16.5
+cryptography==45.0.7
 fastapi==0.135.1
 httpx==0.28.1
 openai==2.29.0
-pgvector==0.4.1
 psycopg2-binary==2.9.11
 pydantic-settings==2.10.1
 pytest==8.4.2

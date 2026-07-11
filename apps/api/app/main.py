@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from app.api.v1.endpoints.query import router as query_router
+from app.api.v1.endpoints.byod import router as byod_router
 from app.core.config import settings
 from app.core.exceptions import QueryMindError
 from app.core.logger import configure_logging, request_id_context
@@ -19,6 +20,7 @@ app = FastAPI(title="QueryMindAI API", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=settings.CORS_ALLOW_ORIGINS,
                    allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.include_router(query_router, prefix="/api/v1", tags=["analytics"])
+app.include_router(byod_router, prefix="/api/v1", tags=["connections"])
 
 
 @app.middleware("http")
