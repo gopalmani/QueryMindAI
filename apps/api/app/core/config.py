@@ -1,8 +1,8 @@
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     QUERY_MAX_ATTEMPTS: int = Field(3, ge=1, le=5)
     GOLDEN_RECORD_SIMILARITY_THRESHOLD: float = Field(0.70, ge=0, le=1)
     DEFAULT_CONNECTION_KEY: str = "demo_ecom_db"
-    CORS_ALLOW_ORIGINS: list[str] = ["http://localhost:4028"]
+    CORS_ALLOW_ORIGINS: Annotated[list[str], NoDecode] = ["http://localhost:4028"]
 
     @field_validator("CORS_ALLOW_ORIGINS", mode="before")
     @classmethod

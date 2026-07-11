@@ -6,6 +6,12 @@ def test_csv_cors_parsing():
     assert settings.CORS_ALLOW_ORIGINS == ["http://a.test", "http://b.test"]
 
 
+def test_cors_parses_single_url_from_environment(monkeypatch):
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://querymind-web-iell.onrender.com")
+    settings = Settings(DATABASE_URL="sqlite://")
+    assert settings.CORS_ALLOW_ORIGINS == ["https://querymind-web-iell.onrender.com"]
+
+
 def test_groq_provider_configuration_parses():
     settings = Settings(
         LLM_PROVIDER="groq", LLM_BASE_URL="https://api.groq.com/openai/v1",
