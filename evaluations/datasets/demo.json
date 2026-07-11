@@ -1,0 +1,16 @@
+[
+  {
+    "id": "top-customers",
+    "question": "Which five customers spent the most?",
+    "expected_tables": ["llm_users", "orders"],
+    "reference_sql": "SELECT u.user_name, SUM(o.total_amount) AS spent FROM llm_users AS u JOIN orders AS o ON o.user_id = u.id GROUP BY u.id, u.user_name ORDER BY spent DESC LIMIT 5",
+    "max_rows": 5
+  },
+  {
+    "id": "order-count",
+    "question": "How many orders are there?",
+    "expected_tables": ["orders"],
+    "reference_sql": "SELECT COUNT(*) AS order_count FROM orders LIMIT 1",
+    "max_rows": 1
+  }
+]

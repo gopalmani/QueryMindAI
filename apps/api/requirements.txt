@@ -1,0 +1,12 @@
+alembic==1.16.5
+fastapi==0.135.1
+httpx==0.28.1
+openai==2.29.0
+pgvector==0.4.1
+psycopg2-binary==2.9.11
+pydantic-settings==2.10.1
+pytest==8.4.2
+pytest-asyncio==1.2.0
+SQLAlchemy==2.0.48
+sqlglot==27.20.0
+uvicorn[standard]==0.42.0

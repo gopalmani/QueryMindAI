@@ -1,0 +1,61 @@
+databases:
+  - name: querymind-postgres
+    plan: free
+    databaseName: querymind
+    user: querymind
+
+services:
+  - type: web
+    name: querymind-api
+    runtime: python
+    rootDir: apps/api
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    buildFilter:
+      paths: [apps/api/**, render.yaml, docker-compose.yml, .env.example]
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: DATABASE_URL
+        fromDatabase: { name: querymind-postgres, property: connectionString }
+      - key: APP_ENV
+        value: production
+      - key: ENABLE_EXTERNAL_CONNECTIONS
+        value: "false"
+      - key: LLM_PROVIDER
+        value: groq
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: openai/gpt-oss-120b
+      - key: LLM_FALLBACK_MODEL
+        value: llama-3.3-70b-versatile
+      - key: EMBEDDING_PROVIDER
+        value: local
+      - key: EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: ENABLE_SCHEMA_RAG
+        value: "false"
+      - key: ENABLE_GOLDEN_RECORDS
+        value: "false"
+      - key: CORS_ALLOW_ORIGINS
+        sync: false
+  - type: web
+    name: querymind-web
+    runtime: node
+    rootDir: apps/web
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- -p $PORT
+    autoDeployTrigger: commit
+    buildFilter:
+      paths: [apps/web/**, render.yaml, .env.example]
+    envVars:
+      - key: NODE_VERSION
+        value: 20.19.5
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

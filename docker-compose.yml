@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: querymind
+      POSTGRES_USER: querymind
+      POSTGRES_PASSWORD: querymind-local-only
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./apps/api/scripts/seed_data.sql:/docker-entrypoint-initdb.d/20-demo.sql:ro
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U querymind -d querymind"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  api:
+    build: ./apps/api
+    environment:
+      DATABASE_URL: postgresql+psycopg2://querymind:querymind-local-only@postgres:5432/querymind
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://ollama:11434/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-ollama}
+      LLM_MODEL: ${LLM_MODEL:-sqlcoder}
+      LLM_FALLBACK_MODEL: ${LLM_FALLBACK_MODEL:-}
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-30}
+      LLM_MAX_RETRIES: ${LLM_MAX_RETRIES:-2}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      ENABLE_SCHEMA_RAG: ${ENABLE_SCHEMA_RAG:-false}
+      ENABLE_GOLDEN_RECORDS: ${ENABLE_GOLDEN_RECORDS:-false}
+      ENABLE_EXTERNAL_CONNECTIONS: "false"
+      CORS_ALLOW_ORIGINS: http://localhost:4028
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  web:
+    build:
+      context: ./apps/web
+      args: { NEXT_PUBLIC_API_URL: "http://localhost:8000/api/v1" }
+    environment: { PORT: "4028" }
+    ports: ["4028:4028"]
+    depends_on: { api: { condition: service_healthy } }
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4028"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    volumes: ["ollama_data:/root/.ollama"]
+    ports: ["11434:11434"]
+volumes:
+  postgres_data:
+  ollama_data:

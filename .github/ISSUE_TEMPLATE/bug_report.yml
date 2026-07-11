@@ -1,0 +1,15 @@
+name: Bug report
+description: Report reproducible QueryMindAI behavior
+body:
+  - type: textarea
+    id: description
+    attributes: { label: Description, description: What happened and what did you expect? }
+    validations: { required: true }
+  - type: textarea
+    id: reproduce
+    attributes: { label: Reproduction, description: Include safe steps and sanitized logs. }
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes: { label: Version or commit }
+    validations: { required: true }

@@ -1,0 +1,11 @@
+# Security
+
+Generated SQL is untrusted input, even when produced by a reputable model. QueryMindAI requires one parser-valid PostgreSQL query, accepts SELECT and WITH…SELECT, rejects comments, extra statements, writes/admin nodes, limits SQL length and rows, and sets a statement timeout. Parser checks can have defects; use a dedicated read-only PostgreSQL role with access only to approved schemas. `scripts/create_readonly_role.sql` is a starting template, not a substitute for reviewing grants.
+
+Database connection URLs, passwords, and API keys must remain in a secret manager or uncommitted environment file. Logs contain request/stage/provider/model metadata but must not contain prompts with credentials, API keys, passwords, full URLs, or raw connection objects. HTTP errors suppress tracebacks and connection details.
+
+External connection credentials are especially sensitive. The raw connect endpoint is disabled by default with `ENABLE_EXTERNAL_CONNECTIONS=false`. Enabling it introduces SSRF, DNS rebinding, internal-network reachability, credential transit, resource exhaustion, and audit risks. Host syntax and port ranges plus short timeouts are checked, but there is no allowlist, encrypted vault, tenant isolation, or complete SSRF defense. Do not enable it for a public deployment in this release.
+
+Questions, schema text, and a retrieved verified example may be sent to the configured generation provider (Groq in the Render default). Local embedding inputs stay in the API process. Avoid including row data, secrets, personal data, or proprietary schema details unless provider retention, region, and contractual controls are acceptable. Query results are not intentionally sent to the provider, but retry errors are reduced and may contain safe database error context. Provider API keys and database credentials are backend-only environment variables and are never included in frontend configuration.
+
+Current limitations: no authentication/authorization, no tenant boundary, no rate limiter, no encrypted credential store, no row/column policy engine, and no automated prompt-injection classifier. Read-only grants, restricted network egress, provider governance, TLS, platform rate limits, and monitoring are required for an internet-facing deployment.
