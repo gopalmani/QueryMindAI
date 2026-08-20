@@ -12,10 +12,11 @@ FORBIDDEN_NODES = (
 )
 
 
-def validate_sql(sql: str, max_rows: int | None = None) -> str:
+def validate_sql(sql: str, max_rows: int | None = None, allowed_tables: set[str] | None = None,
+                 max_sql_length: int | None = None) -> str:
     if not sql or not sql.strip():
         raise UnsafeSQLError("The provider returned empty SQL")
-    if len(sql) > settings.MAX_SQL_LENGTH:
+    if len(sql) > (max_sql_length or settings.MAX_SQL_LENGTH):
         raise UnsafeSQLError("Generated SQL exceeds the configured maximum length")
     if "/*" in sql or "*/" in sql or re.search(r"--[^\n\r]*", sql):
         raise UnsafeSQLError("SQL comments are not allowed")
@@ -32,6 +33,22 @@ def validate_sql(sql: str, max_rows: int | None = None) -> str:
         raise UnsafeSQLError("Write and administrative SQL statements are not allowed")
     if statement.find(exp.Select) is None:
         raise UnsafeSQLError("Only SELECT queries and WITH ... SELECT queries are allowed")
+    if statement.find(exp.Anonymous) is not None and any(
+        function.name.upper() in {"CALL", "DO", "PG_READ_FILE", "PG_LS_DIR", "DBLINK", "LO_IMPORT", "LO_EXPORT"}
+        for function in statement.find_all(exp.Anonymous)
+    ):
+        raise UnsafeSQLError("Stored procedures and unsafe functions are not allowed")
+    if allowed_tables is not None:
+        cte_names = {cte.alias_or_name.lower() for cte in statement.find_all(exp.CTE)}
+        referenced = set()
+        for table in statement.find_all(exp.Table):
+            if table.name.lower() in cte_names:
+                continue
+            qualified = f"{table.db}.{table.name}".lower() if table.db else table.name.lower()
+            referenced.add(qualified)
+        unknown = sorted(table for table in referenced if table not in allowed_tables)
+        if unknown:
+            raise UnsafeSQLError(f"SQL references tables outside the selected schema: {', '.join(unknown)}")
 
     limit = max_rows or settings.MAX_QUERY_ROWS
     existing = statement.args.get("limit")

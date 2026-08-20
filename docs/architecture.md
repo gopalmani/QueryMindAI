@@ -1,23 +1,17 @@
 # Architecture
 
-QueryMindAI is a two-service monorepo: a browser-rendered Next.js application and a modular FastAPI API backed by PostgreSQL/pgvector. The API is the trust boundary; the browser cannot execute SQL directly.
+QueryMindAI remains a modular FastAPI monolith plus a Next.js web application. The API owns identity verification, credential encryption, catalog snapshots, planning, validation, execution, history, and audit records.
 
 ```mermaid
-sequenceDiagram
-  participant W as Web
-  participant A as API
-  participant P as LLM provider
-  participant D as PostgreSQL
-  W->>A: POST /api/v1/query
-  A->>D: Introspect schema / optional vector lookup
-  A->>P: Question + bounded schema + optional verified example
-  P-->>A: Candidate SQL
-  A->>A: Cleanup + sqlglot safety validation
-  A->>D: Read-only, timeout-bound SELECT
-  D-->>A: Rows
-  A-->>W: SQL, rows, explanation, warnings, metadata
+flowchart LR
+  B[Browser] --> W[QueryMindAI Web] --> A[QueryMindAI API]
+  A --> C[Connection Manager] --> K[Schema Catalog]
+  K --> P[LLM Query Planner] --> V[SQL Validator]
+  V --> E[Execution Engine] --> D[(Customer PostgreSQL Database)]
 ```
 
-The provider is OpenAI API compatible and constructed once from settings. If embedding functionality fails, live schema introspection remains available and verified-example retrieval is skipped. Migrations, not app startup, own production schema changes. Query history is implemented as best-effort recording after successful execution.
+Connection creation normalizes URL or structured input, resolves and rejects unsafe addresses, tests SSL connectivity, introspects metadata, encrypts credentials, and stores a content-addressed snapshot. Credentials and row data never enter prompts.
 
-Static frontend management surfaces were retained to avoid an unnecessary visual rewrite. Their datasets are demo presentation data; only the query assistant currently completes the product journey end to end.
+Generation and execution are deliberately separate. Generation stores an owned, expiring draft after parser and catalog-table validation. Execution requires explicit browser action, verifies draft and connection ownership, reloads the current catalog, revalidates SQL immediately before execution, rechecks DNS, opens a fresh connection, starts a read-only transaction, applies a timeout, caps results, and rolls back. History stores SQL and metadata, not result rows.
+
+Signed anonymous workspace sessions are the current minimal identity boundary. They protect ownership from forged identifiers but are browser-local and are not user accounts. Replace the `auth` module with verified OIDC/JWT identity for multi-user production deployments.

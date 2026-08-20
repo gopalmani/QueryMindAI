@@ -4,7 +4,7 @@ Next.js 15, React 19, TypeScript, and Tailwind UI for QueryMindAI.
 
 ## Architecture and implemented pages
 
-`src/app` contains routes and retained page components, `src/lib/api.ts` is the typed fetch boundary, and `src/types` contains contracts. The AI Query Assistant is API-backed and implemented: question entry, loading/error states, Generated SQL, rows, explanation, warnings, and verified-example approval. Schema/history backend APIs exist; the retained Browser, History, Dashboard, Connections, and login designs contain demo data or coming-soon interactions and must not be treated as operational telemetry/authentication.
+`src/app` contains routes, `src/lib/api.ts` is the typed authenticated fetch boundary, and `src/types` contains contracts. Data Connections creates/tests/deletes encrypted PostgreSQL connections; Schema Explorer renders normalized live catalog snapshots; AI Query Workspace separates generation from explicit execution; Query History lists approved executions without stored rows. The client stores a signed anonymous workspace token in browser local storage; this is ownership isolation, not account login.
 
 ## Configuration and API integration
 
