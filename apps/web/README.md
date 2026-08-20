@@ -2,9 +2,17 @@
 
 Next.js 15, React 19, TypeScript, and Tailwind UI for QueryMindAI.
 
-## Architecture and implemented pages
+## Product routes
 
-`src/app` contains routes, `src/lib/api.ts` is the typed authenticated fetch boundary, and `src/types` contains contracts. Data Connections creates/tests/deletes encrypted PostgreSQL connections; Schema Explorer renders normalized live catalog snapshots; AI Query Workspace separates generation from explicit execution; Query History lists approved executions without stored rows. The client stores a signed anonymous workspace token in browser local storage; this is ownership isolation, not account login.
+The frontend intentionally has three product routes:
+
+- `/connections` creates, tests, lists, refreshes, and deletes encrypted PostgreSQL connections. Its expandable Schema Catalog renders live introspection data.
+- `/query` generates validated SQL and requires a separate **Run query** approval before execution. It renders real results and can save a successful execution as a verified example.
+- `/history` lists real approved executions and their metadata. Result rows are not persisted.
+
+Old generated dashboard, login, browser, editor, and history URLs redirect to these routes. There are no fake metrics, login forms, connection records, schemas, results, or history entries.
+
+`src/features` owns workflow UI, `src/lib/api.ts` is the typed authenticated fetch boundary, and `src/types` contains API contracts. The client stores a signed anonymous workspace token in browser local storage; this is ownership isolation, not account login.
 
 ## Configuration and API integration
 
@@ -29,4 +37,6 @@ The multi-stage Dockerfile builds a standalone, non-root image. Pass `NEXT_PUBLI
 
 ## UI conventions
 
-Use AI Query Assistant, Generated SQL, Verified Example, Schema Explorer, Query History, and Data Connections. Label every non-API data source `Demo data` or `Coming soon`; never describe stored examples as model training.
+Use Connections, AI Query Assistant, Generated SQL, Verified Example, Schema Catalog, and Query History. Product data must come from the API. Do not add sample metrics or fabricated operational records. Never describe stored examples as model training.
+
+For the complete repository setup, database role, local-database caveat, and troubleshooting steps, read [Run QueryMindAI locally](../../docs/local-development.md).

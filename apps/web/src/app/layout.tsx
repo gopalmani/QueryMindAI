@@ -1,21 +1,16 @@
-import type { Metadata } from 'next'
-import './components/styles/tailwind.css'
+import type { Metadata } from 'next';
+import './components/styles/tailwind.css';
 
 export const metadata: Metadata = {
   title: 'QueryMindAI — Ask questions, not SQL',
-  description: 'SQL Editor and AI Assistant',
-}
+  description:
+    'Connect a read-only PostgreSQL database and query it safely using natural language.',
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-slate-900 text-white">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
-  )
+  );
 }

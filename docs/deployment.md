@@ -30,6 +30,8 @@ The Blueprint keeps local embedding features disabled because the standard API b
 
 Build filters deploy the API for backend/shared deployment changes and the web for frontend/shared deployment changes. `render.yaml` contains no real API keys. This repository has been prepared and syntax-checked locally; no Render account or live deployment has been connected by this work.
 
+A merge to `main` does not unconditionally rebuild both services. Render evaluates each service's `buildFilter`: changes under `apps/web/**` deploy the web service, changes under `apps/api/**` deploy the API, changes touching both deploy both, and shared files listed in both filters (such as `render.yaml`) trigger both. This avoids unnecessary backend deploys for UI-only pull requests.
+
 ## Customer read-only PostgreSQL role
 
 Run an equivalent reviewed policy as a database administrator, replacing names and the generated password:
