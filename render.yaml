@@ -26,8 +26,6 @@ services:
         sync: false
       - key: CONNECTION_ENCRYPTION_KEY
         sync: false
-      - key: AUTH_SIGNING_KEY
-        sync: false
       - key: DATABASE_CONNECTION_TIMEOUT_SECONDS
         value: "5"
       - key: DATABASE_STATEMENT_TIMEOUT_MS

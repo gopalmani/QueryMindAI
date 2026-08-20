@@ -23,14 +23,13 @@ cd QueryMindAI
 cp .env.example .env
 ```
 
-Generate two independent backend secrets:
+Generate the backend credential-encryption key:
 
 ```bash
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-Put the first value in `CONNECTION_ENCRYPTION_KEY` and the second in `AUTH_SIGNING_KEY` in your local `.env`. Never commit that file.
+Put the value in `CONNECTION_ENCRYPTION_KEY` in your local `.env`. Workspace-session signing is derived from it, so no second signing secret is needed. Never commit that file.
 
 ### Option A: local Ollama
 
@@ -107,7 +106,7 @@ alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 ```
 
-At minimum, set the application `DATABASE_URL`, `ENABLE_EXTERNAL_CONNECTIONS=true`, and the two generated `CONNECTION_ENCRYPTION_KEY` and `AUTH_SIGNING_KEY` values in `apps/api/.env`. Keep `CORS_ALLOW_ORIGINS=http://localhost:4028` for the default frontend port.
+At minimum, set the application `DATABASE_URL`, `ENABLE_EXTERNAL_CONNECTIONS=true`, and the generated `CONNECTION_ENCRYPTION_KEY` value in `apps/api/.env`. Keep `CORS_ALLOW_ORIGINS=http://localhost:4028` for the default frontend port.
 
 In another terminal:
 
@@ -123,7 +122,7 @@ The browser API URL must include `/api/v1`. `CORS_ALLOW_ORIGINS` on the API must
 ## Troubleshooting
 
 - **Connections are disabled:** set `ENABLE_EXTERNAL_CONNECTIONS=true` in the API environment and restart it.
-- **Encryption/signing configuration error:** provide valid, different `CONNECTION_ENCRYPTION_KEY` and `AUTH_SIGNING_KEY` values.
+- **Encryption/signing configuration error:** provide a valid Fernet `CONNECTION_ENCRYPTION_KEY` value.
 - **Host rejected:** public mode rejects localhost, private, link-local, reserved, and metadata IP ranges. Use a public hostname or opt into private hosts only in a trusted local environment.
 - **Browser reports a network or CORS error:** verify `NEXT_PUBLIC_API_URL`, `CORS_ALLOW_ORIGINS`, and `/health`. Next.js public variables are embedded at build time, so rebuild the web image after changing the API URL.
 - **Generation fails but schema browsing works:** verify the LLM provider URL, model, and backend-only key. Database credentials and LLM keys must never be added to `NEXT_PUBLIC_*` variables.
