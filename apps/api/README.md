@@ -28,7 +28,7 @@ uvicorn app.main:app --reload --port 8000
 
 Production startup never creates tables. Alembic creates application tables and pgvector. The demo seed is idempotent. Use `../../scripts/create_readonly_role.sql` as a reviewed template and run query traffic with that role.
 
-Saved customer credentials require `CONNECTION_ENCRYPTION_KEY` (a Fernet key). Signed workspace sessions require a separate `AUTH_SIGNING_KEY`. Generate them with the commands in `../../docs/deployment.md`. BYOD accepts URL or structured PostgreSQL input, requires SSL, blocks unsafe networks by default, and stores normalized schema snapshots without row data.
+Saved customer credentials require `CONNECTION_ENCRYPTION_KEY` (a Fernet key). Workspace-session signing uses a domain-separated key derived from that Fernet key, so no second signing secret is required. Generate the key with the command in `../../docs/deployment.md`. BYOD accepts URL or structured PostgreSQL input, requires SSL, blocks unsafe networks by default, and stores normalized schema snapshots without row data.
 
 ## Safety model
 

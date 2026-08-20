@@ -23,7 +23,6 @@ class Settings(BaseSettings):
     ENABLE_EXTERNAL_CONNECTIONS: bool = False
     ALLOW_PRIVATE_DATABASE_HOSTS: bool = False
     CONNECTION_ENCRYPTION_KEY: str | None = None
-    AUTH_SIGNING_KEY: str | None = None
     AUTH_SESSION_TTL_SECONDS: int = Field(2592000, ge=300, le=31536000)
     DATABASE_CONNECTION_TIMEOUT_SECONDS: int = Field(5, ge=1, le=30)
     DATABASE_STATEMENT_TIMEOUT_MS: int = Field(10000, ge=100, le=300000)

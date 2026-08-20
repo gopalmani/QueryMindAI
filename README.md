@@ -112,7 +112,7 @@ For the default Compose stack, optional vector features are off so schema intros
 | `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL` | Local semantic-retrieval configuration |
 | `ENABLE_SCHEMA_RAG`, `ENABLE_GOLDEN_RECORDS` | Optional embedding features |
 | `ENABLE_EXTERNAL_CONNECTIONS`, `ALLOW_PRIVATE_DATABASE_HOSTS` | BYOD and SSRF policy flags |
-| `CONNECTION_ENCRYPTION_KEY`, `AUTH_SIGNING_KEY` | Backend-only Fernet and session signing secrets |
+| `CONNECTION_ENCRYPTION_KEY` | Backend-only Fernet key; session signing is derived from it with domain separation |
 | `DATABASE_*` | Connect timeout, statement timeout, SQL length, and result caps |
 | `SCHEMA_*_TABLE_LIMIT` | Full-context and retrieval bounds |
 | `NEXT_PUBLIC_API_URL` | Browser-visible API `/api/v1` URL |

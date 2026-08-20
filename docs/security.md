@@ -4,7 +4,7 @@
 
 PostgreSQL credentials are serialized and encrypted with Fernet authenticated encryption using backend-only `CONNECTION_ENCRYPTION_KEY`. Responses contain only host, database, username, SSL mode, and status; passwords, decrypted configuration, and raw URLs are never returned or logged. Deletion cascades catalog snapshots, drafts, and BYOD history and explicitly removes connection-keyed verified examples. Audit records retain only identifiers and safe status metadata.
 
-Application encryption is not an enterprise vault. The entire dataset must be re-encrypted to rotate the key; losing the key makes credentials unrecoverable. Mature deployments should use a managed secret store/KMS. `AUTH_SIGNING_KEY` signs browser-bound anonymous workspace sessions. These sessions are not account authentication, recovery, organization membership, MFA, or revocation infrastructure; use an external identity provider for a true multi-user deployment.
+Application encryption is not an enterprise vault. The entire dataset must be re-encrypted to rotate the key; losing the key makes credentials unrecoverable. Mature deployments should use a managed secret store/KMS. Browser-bound anonymous workspace sessions are signed with a domain-separated HMAC key derived from `CONNECTION_ENCRYPTION_KEY`; the derived key is never persisted. Rotating the encryption key therefore also invalidates existing sessions. These sessions are not account authentication, recovery, organization membership, MFA, or revocation infrastructure; use an external identity provider for a true multi-user deployment.
 
 ## Network and SSRF controls
 

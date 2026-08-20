@@ -1,4 +1,5 @@
 import base64
+import binascii
 import hashlib
 import hmac
 import json
@@ -13,9 +14,17 @@ from app.core.exceptions import AuthenticationError, DependencyError
 
 
 def _key() -> bytes:
-    if not settings.AUTH_SIGNING_KEY:
-        raise DependencyError("AUTH_SIGNING_KEY is required for saved connection sessions")
-    return settings.AUTH_SIGNING_KEY.encode()
+    if not settings.CONNECTION_ENCRYPTION_KEY:
+        raise DependencyError("CONNECTION_ENCRYPTION_KEY is required for saved connection sessions")
+    try:
+        key_material = base64.b64decode(
+            settings.CONNECTION_ENCRYPTION_KEY.encode(), altchars=b"-_", validate=True
+        )
+    except (binascii.Error, ValueError) as exc:
+        raise DependencyError("CONNECTION_ENCRYPTION_KEY is invalid") from exc
+    if len(key_material) != 32:
+        raise DependencyError("CONNECTION_ENCRYPTION_KEY is invalid")
+    return hmac.new(key_material, b"querymindai/workspace-session/v1", hashlib.sha256).digest()
 
 
 def issue_session() -> tuple[str, str, int]:
