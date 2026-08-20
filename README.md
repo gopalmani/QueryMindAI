@@ -149,7 +149,7 @@ The API validates question size, limits generated SQL length, rejects comments/m
 
 ## Render deployment
 
-`render.yaml` defines the API, web app, and PostgreSQL database. Secrets and the browser API URL require dashboard entry. Follow [the exact Blueprint procedure](docs/deployment.md); this repository prepares deployment but has not deployed or connected a Render account.
+`render.yaml` defines the API and web app. The application database is an external PostgreSQL service such as Supabase, supplied through the backend-only `DATABASE_URL` secret. Both services deploy after CI passes for every commit merged into `main`. Follow [the exact deployment procedure](docs/deployment.md); secrets and the browser API URL still require dashboard entry.
 
 ## Limitations and roadmap
 

@@ -1,7 +1,8 @@
 name: Backend
 on:
-  push: { paths: ['apps/api/**', 'evaluations/**', '.github/workflows/backend.yml'] }
-  pull_request: { paths: ['apps/api/**', 'evaluations/**', '.github/workflows/backend.yml'] }
+  push:
+    branches: [main]
+  pull_request: {}
 jobs:
   test:
     runs-on: ubuntu-latest
