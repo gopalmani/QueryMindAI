@@ -7,9 +7,15 @@ QueryMindAI is an open-source AI data workspace that lets users connect a read-o
 
 QueryMindAI is an early production-minded release. Implemented today: encrypted saved PostgreSQL connections, public-host SSRF checks, SSL connections, catalog snapshots, structured SQL generation, explicit approval drafts, parser/table validation, read-only execution, verified examples, history, audit events, Docker Compose, and Render configuration. Signed anonymous workspace sessions provide ownership isolation for the public demo; account login and enterprise identity integration remain roadmap work.
 
-## Screenshots
+## Product workflow
 
-![AI Query Assistant placeholder](docs/screenshots/ai-query-assistant-placeholder.svg)
+The web app contains only three API-backed workspaces:
+
+1. **Connections** — test and save an encrypted, read-only PostgreSQL connection; inspect and refresh its live schema catalog.
+2. **Query** — ask a business question, generate structured SQL, and review the SQL, explanation, assumptions, and warnings before explicitly running it.
+3. **History** — review real approved executions and their metadata. Query result rows are not persisted.
+
+No dashboard metrics, schemas, connections, query results, or history records are fabricated in the UI.
 
 ## Core capabilities and differentiators
 
@@ -49,7 +55,7 @@ FastAPI, SQLAlchemy, Alembic, PostgreSQL, sqlglot, OpenAI-compatible provider AP
 ```text
 apps/api       FastAPI service, migrations, scripts, tests
 apps/web       Next.js application
-docs           Architecture, deployment, and security guidance
+docs           Architecture, local setup, deployment, and security guidance
 evaluations    Small deterministic dataset and runner
 scripts        Operator helpers
 .github        CI and issue templates
@@ -79,6 +85,8 @@ npm run dev
 ```
 
 Open `http://localhost:4028`.
+
+For secret generation, read-only role SQL, local-database connectivity, and troubleshooting, follow the complete [local open-source setup guide](docs/local-development.md).
 
 ## Docker quickstart
 
